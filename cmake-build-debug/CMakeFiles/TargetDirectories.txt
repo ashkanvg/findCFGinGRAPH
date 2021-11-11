@@ -1,0 +1,3 @@
+C:/Users/Ashkan/Desktop/riverside- project/Cpp/cmake-build-debug/CMakeFiles/Cpp.dir
+C:/Users/Ashkan/Desktop/riverside- project/Cpp/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Ashkan/Desktop/riverside- project/Cpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir

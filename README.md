@@ -5,11 +5,10 @@ The basic idea is simple: consider two adjacent edges in a graph labeled with "A
 
 
 # input 
-There is an input.txt file that CFG and GRAPH should enter there. 
+There is an "input.txt" file that CFG and GRAPH should enter there. 
 input file structure:
 "#1 {A,B,C}{A,B,C} #2 {1,2,A}{0,1,B} #3 4"
-which everything after "#1" is about the CFG, everything after "#2" is about the graph, and the number after "#3" is the size of the graph (count of vertexes). Additionally, the number of vertexes starts from 0 to Size-1. 
-
+which everything after "#1" is about the CFG, everything after "#2" is about the graph, and the number after "#3" is the size of the graph (count of vertexes). Additionally, the number of vertexes starts from 0 to Size-1, and the CFG is normalized. You can see an input and output sample in "sample.jpg".
 
 
 # Time Complexity

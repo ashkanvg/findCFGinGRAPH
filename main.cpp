@@ -2,12 +2,11 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <fstream>
+
 
 using namespace std;
 
-/*
-{1, [2,3]},{}
-*/
 
 // GRAPH
 struct edge
@@ -61,14 +60,6 @@ void printGraph(Graph const &graph)
         cout << endl;
     }
 }
-
-/*
- 1  ->  2  edge weight:  A
- 1  ->  3  edge weight:  A
- 2  ->  3  edge weight:  B
-*/
-
-// A --> (C,B)
 
 // GRAMMER
 struct transition
@@ -128,33 +119,125 @@ void findCFGinGraph(Graph &graph,Grammer &cfg){
 
 }
 
+// read txt
+void readInput(string text, vector<transition> &grammers, vector<edge> &edges, int &N){
+    fstream my_file;
+    my_file.open(text, ios::in);
+    if (!my_file) {
+        cout << "No such file";
+        return;
+    }
+    else {
+        char ch;
+
+        struct transition t = {};
+        struct edge e = {};
+
+        char status = ' ';
+        bool open = 0;
+        char depth = '0'; // 0--> first item | 1--> second item | 2--> third item
+
+        while (1) {
+            my_file >> ch;
+            if (my_file.eof()) break;
+
+            if(ch == ',' || ch == ' ') continue;
+
+            if(ch == '{'){
+                open = 1;
+                continue;
+            }
+            if(ch == '}'){
+                open = 0;
+                if(status=='1'){
+                    grammers.push_back(t);
+                }else if(status=='2'){
+                    edges.push_back(e);
+                }
+                continue;
+            }
+
+            if(ch == '#'){
+                status = '#';
+                continue;
+            }
+
+            // status : #-> not initialize | 1-> cfg | 2->graph | 3-> graph size
+            if(status == '#' && (ch == '1' || ch == '2' || ch == '3')){
+                status = ch;
+                continue;
+            }
+            if(status == '3'){
+                N = ch - '0';
+                continue;
+            }
+
+            // character
+            if(open){
+                if(status == '1'){//cfg
+                    switch (depth){
+                        case '0':
+                            t.src = ch;
+                            depth = '1';
+                            break;
+                        case '1':
+                            t.var1 = ch;
+                            depth = '2';
+                            break;
+                        case '2':
+                            t.var2 = ch;
+                            depth = '0';
+                            break;
+                    }
+                }else if(status == '2'){//graph
+                    switch (depth){
+                        case '0':
+                            e.src = ch - '0';
+                            depth = '1';
+                            break;
+                        case '1':
+                            e.dest = ch - '0';
+                            depth = '2';
+                            break;
+                        case '2':
+                            e.weight = ch;
+                            depth = '0';
+                            break;
+                    }
+                }
+            }
+            //cout << ch << endl;
+        }
+
+    }
+    my_file.close();
+}
+
 
 int main() {
+    string input_file = "../input.txt";
+
+    vector<transition> grammers = {};
+    vector<edge> edges= {};
+    int graph_size;
+
+    readInput(input_file,grammers,edges,graph_size);
+
     //GRAMMER
-    vector<transition> grammers =
-            {
-                {'C','A','B'},
-                {'A','C','B'},
-            };
     Grammer grammer(grammers);
-    printGrammer(grammer);
 
     // GRAPH
-    vector<edge> edges =
-            {
-                    {0,1,'A'},
-                    {1,2,'B'},
-                    {2,3,'B'},
-                    {3,0,'C'},
-            };
-    int N=4;
-    Graph graph(edges, N);
+    Graph graph(edges, graph_size);
+
+    cout << "INPUT:"<<endl;
+    printGrammer(grammer);
     printGraph(graph);
 
     findCFGinGraph(graph,grammer);
     cout<<"-----------------"<<endl;
-    printGraph(graph);
+    cout << "OUTPUT:"<<endl;
 
+    printGraph(graph);
 
     return 0;
 }

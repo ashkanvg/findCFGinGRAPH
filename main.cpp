@@ -61,29 +61,29 @@ void printGraph(Graph const &graph)
     }
 }
 
-// GRAMMER
+// GRAMMAR
 struct transition
 {
     char src, var1, var2;
 };
-class Grammer {
+class Grammar {
 public:
-    // we save grammer from right to left in order to search by key in O(logN) in searching method
+    // we save grammar from right to left in order to search by key in O(logN) in searching method
     // AB --> C
     // AB --> B
     // AC --> B
-    map<string,vector<char>> grammer;
+    map<string,vector<char>> grammar;
 
-    //Grammer Constructor
-    Grammer(vector<transition> const &transitions){
+    //Grammar Constructor
+    Grammar(vector<transition> const &transitions){
         for (auto &transition: transitions) {
-            grammer[{transition.var1, transition.var2}].push_back(transition.src);
+            grammar[{transition.var1, transition.var2}].push_back(transition.src);
         }
     }
 };
-void printGrammer(Grammer const &cfg)
+void printGrammar(Grammar const &cfg)
 {
-    for (const auto &item : cfg.grammer) {
+    for (const auto &item : cfg.grammar) {
         for(char c : item.second){
             cout<< c << " --> "<< item.first<<endl;
         }
@@ -93,7 +93,7 @@ void printGrammer(Grammer const &cfg)
 
 
 // check
-void findCFGinGraph(Graph &graph,Grammer &cfg){
+void findCFGinGraph(Graph &graph,Grammar &cfg){
     int count_new_edges = 1;
     while(count_new_edges>0){
         count_new_edges = 0;
@@ -106,7 +106,7 @@ void findCFGinGraph(Graph &graph,Grammer &cfg){
                 for(pair<int,char> v2 : graph.adjList[v1.first]){
                     result = result + v2.second;
 
-                    for(char g : cfg.grammer[result]){
+                    for(char g : cfg.grammar[result]){
                         struct edge e = {i,v2.first,g};
                         if(graph.add_edge(e))
                             count_new_edges++;
@@ -119,8 +119,8 @@ void findCFGinGraph(Graph &graph,Grammer &cfg){
 
 }
 
-// read txt
-void readInput(string text, vector<transition> &grammers, vector<edge> &edges, int &N){
+// read input from txt
+void readInput(string text, vector<transition> &grammars, vector<edge> &edges, int &N){
     fstream my_file;
     my_file.open(text, ios::in);
     if (!my_file) {
@@ -150,7 +150,7 @@ void readInput(string text, vector<transition> &grammers, vector<edge> &edges, i
             if(ch == '}'){
                 open = 0;
                 if(status=='1'){
-                    grammers.push_back(t);
+                    grammars.push_back(t);
                 }else if(status=='2'){
                     edges.push_back(e);
                 }
@@ -217,23 +217,23 @@ void readInput(string text, vector<transition> &grammers, vector<edge> &edges, i
 int main() {
     string input_file = "../input.txt";
 
-    vector<transition> grammers = {};
+    vector<transition> grammars = {};
     vector<edge> edges= {};
     int graph_size;
 
-    readInput(input_file,grammers,edges,graph_size);
+    readInput(input_file,grammars,edges,graph_size);
 
-    //GRAMMER
-    Grammer grammer(grammers);
+    // GRAMMAR
+    Grammar grammar(grammars);
 
     // GRAPH
     Graph graph(edges, graph_size);
 
     cout << "INPUT:"<<endl;
-    printGrammer(grammer);
+    printGrammar(grammar);
     printGraph(graph);
 
-    findCFGinGraph(graph,grammer);
+    findCFGinGraph(graph,grammar);
     cout<<"-----------------"<<endl;
     cout << "OUTPUT:"<<endl;
 

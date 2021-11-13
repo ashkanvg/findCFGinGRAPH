@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
-
+#include <math.h>
 
 using namespace std;
 
@@ -120,7 +120,8 @@ void findCFGinGraph(Graph &graph,Grammar &cfg){
 }
 
 // read input from txt
-void readInput(string text, vector<transition> &grammars, vector<edge> &edges, int &N){
+// type = 1 --> CFL type = 2 --> Graph
+void readInput(string text, vector<transition> &grammars, vector<edge> &edges, int &N, char type){
     fstream my_file;
     my_file.open(text, ios::in);
     if (!my_file) {
@@ -129,52 +130,68 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
     }
     else {
         char ch;
+        bool open = false;
 
-        struct transition t = {};
-        struct edge e = {};
+        struct transition t;
+        struct edge e;
 
-        char status = ' ';
-        bool open = 0;
+        int count = 0;
+        if(type=='2'){
+            N = 0;
+        }
         char depth = '0'; // 0--> first item | 1--> second item | 2--> third item
-
         while (1) {
             my_file >> ch;
-            if (my_file.eof()) break;
+            if(my_file.eof()) break;
+
+
+            // get size of graph
+            if(count != -1 && type == '2'){
+                if(ch != '#'){
+                    N += (pow(10,count))*(ch - '0');
+                    count++;
+                }else{
+                    count = -1;
+                }
+                continue;
+            }
 
             if(ch == ',' || ch == ' ') continue;
 
             if(ch == '{'){
-                open = 1;
+                open = true;
                 continue;
             }
             if(ch == '}'){
-                open = 0;
-                if(status=='1'){
+                open = false;
+                if(type=='1'){
                     grammars.push_back(t);
-                }else if(status=='2'){
+                }else if(type=='2'){
                     edges.push_back(e);
                 }
                 continue;
             }
 
+            /*
             if(ch == '#'){
                 status = '#';
                 continue;
             }
+            */
 
             // status : #-> not initialize | 1-> cfg | 2->graph | 3-> graph size
-            if(status == '#' && (ch == '1' || ch == '2' || ch == '3')){
+            /*if(status == '#' && (ch == '1' || ch == '2' || ch == '3')){
                 status = ch;
                 continue;
             }
             if(status == '3'){
                 N = ch - '0';
                 continue;
-            }
+            }*/
 
             // character
             if(open){
-                if(status == '1'){//cfg
+                if(type == '1'){//cfg
                     switch (depth){
                         case '0':
                             t.src = ch;
@@ -189,7 +206,7 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
                             depth = '0';
                             break;
                     }
-                }else if(status == '2'){//graph
+                }else if(type == '2'){//graph
                     switch (depth){
                         case '0':
                             e.src = ch - '0';
@@ -206,6 +223,7 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
                     }
                 }
             }
+            //continue;
             //cout << ch << endl;
         }
 
@@ -215,13 +233,15 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
 
 
 int main() {
-    string input_file = "../input.txt";
+    string graph_file = "../graph.txt";
+    string cfl_file = "../cfl.txt";
 
     vector<transition> grammars = {};
     vector<edge> edges= {};
     int graph_size;
 
-    readInput(input_file,grammars,edges,graph_size);
+    readInput(cfl_file,grammars,edges,graph_size,'1');
+    readInput(graph_file,grammars,edges,graph_size,'2');
 
     // GRAMMAR
     Grammar grammar(grammars);

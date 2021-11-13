@@ -5,11 +5,14 @@ The basic idea is simple: consider two adjacent edges in a graph labeled with "A
 
 
 # input 
-There is an "input.txt" file that CFG and GRAPH should enter there. 
+There is a "graph.txt" file that GRAPH should enter there.
 input file structure:
-"#1 {A,B,C}{A,B,C} #2 {1,2,A}{0,1,B} #3 4"
-which everything after "#1" is about the CFG, everything after "#2" is about the graph, and the number after "#3" is the size of the graph (count of vertexes). Additionally, the number of vertexes starts from 0 to Size-1, and the CFG is normalized. You can see an input and output sample in "sample.jpg".
-
+"3# {1,2,A}{0,1,B}"
+which the number before "#" is about the size of the graph, everything after "#" is about the graph edges.
+And also there is a "cfl.txt" file that CFL should enter there.
+input file structure:
+"{A,B,C}{A,B,C}"
+which every {} is a grammar.
 
 # Time Complexity
 The worst case of this code is (|E|^2)|G||T|. 

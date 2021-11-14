@@ -4,16 +4,22 @@ Given an edge-labeled graph, whether there is a path from a vertex to another ve
 The basic idea is simple: consider two adjacent edges in a graph labeled with "A" and "B", if there is a grammar rule C --> AB, then add a new edge labeled with "C".
 
 
-# input 
+## input 
 There is a "graph.txt" file that GRAPH should enter there.
-input file structure:
-"3# {1,2,A}{0,1,B}"
-which the number before "#" is about the size of the graph, everything after "#" is about the graph edges.
-And also there is a "cfl.txt" file that CFL should enter there.
-input file structure:
-"{A,B,C}{A,B,C}"
-which every {} is a grammar.
+first life of the graph input file is the count of vertexes. And every line after that is about the graph edges. The structure:
 
-# Time Complexity
+```bash
+[edge source]  [edge destinction]  [edge weight]
+```
+
+And also there is a "grammar.txt" file that CFL should enter there. And every line is a transition in our grammar. Input file structure (for A --> BC): 
+
+```bash
+A B C
+```
+
+Some sample is available in "other inputs" directory.
+
+## Time Complexity
 The worst case of this code is (|E|^2)|G||T|. 
 In this case, |G| is the count of grammars in our CFL, |E| is the count of edges of the graph, and |T| is the count of repeating algorithm to achieve the final graph.

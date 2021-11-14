@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <math.h>
 
 using namespace std;
 
@@ -119,6 +118,29 @@ void findCFGinGraph(Graph &graph,Grammar &cfg){
 
 }
 
+vector<string> removeSpace(string str)
+{
+    //cout << str;
+    vector<string> words;
+    string word = "";
+    for (auto x : str)
+    {
+        if (x == ' ')
+        {
+            //cout << word << endl;
+            words.push_back(word);
+            word = "";
+        }
+        else {
+            word = word + x;
+        }
+    }
+    words.push_back(word);
+    //cout << word << endl;
+    return words;
+
+}
+
 // read input from txt
 // type = 1 --> CFL type = 2 --> Graph
 void readInput(string text, vector<transition> &grammars, vector<edge> &edges, int &N, char type){
@@ -129,112 +151,74 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
         return;
     }
     else {
-        char ch;
-        bool open = false;
+        bool first_line = true;
+        while (!my_file.eof()) {
+            string line;
+            getline(my_file, line, '\n');
+            //cout << line;
 
-        struct transition t;
-        struct edge e;
+            vector<string> words = removeSpace(line);
 
-        int count = 0;
-        if(type=='2'){
-            N = 0;
-        }
-        char depth = '0'; // 0--> first item | 1--> second item | 2--> third item
-        while (1) {
-            my_file >> ch;
-            if(my_file.eof()) break;
+            struct transition t = {};
+            struct edge e = {};
 
+            if (type == '1') {
+                t.src = words[0][0]; //just for 1 char
+                t.var1 = words[1][0];
+                t.var2 = words[2][0];
 
-            // get size of graph
-            if(count != -1 && type == '2'){
-                if(ch != '#'){
-                    N += (pow(10,count))*(ch - '0');
-                    count++;
-                }else{
-                    count = -1;
-                }
+                grammars.push_back(t);
+
                 continue;
-            }
+            } else {// type == '2'
+                if (first_line) {
+                    cout << words[0].length() << "!";
 
-            if(ch == ',' || ch == ' ') continue;
+                    int count = 1;
+                    N = 0;
+                    for (int i = words[0].length() - 1; i >= 0; i--) {
+                        N += count * (words[0][i] - '0');
+                        count *= 10;
+                    }
+                } else {
 
-            if(ch == '{'){
-                open = true;
-                continue;
-            }
-            if(ch == '}'){
-                open = false;
-                if(type=='1'){
-                    grammars.push_back(t);
-                }else if(type=='2'){
+                    int count_src = 1;
+                    e.src = 0;
+                    for (int i = words[0].length() - 1; i >= 0; i--) {
+                        e.src += count_src * (words[0][i] - '0');
+                        count_src *= 10;
+                    }
+
+                    int count_dest = 1;
+                    e.dest = 0;
+                    for (int i = words[1].length() - 1; i >= 0; i--) {
+                        e.dest += count_dest * (words[1][i] - '0');
+                        count_dest *= 10;
+                    }
+
+                    e.weight = words[2][0];
+
+
                     edges.push_back(e);
                 }
-                continue;
+
+                first_line = false;
+
             }
 
-            /*
-            if(ch == '#'){
-                status = '#';
-                continue;
-            }
-            */
 
-            // status : #-> not initialize | 1-> cfg | 2->graph | 3-> graph size
-            /*if(status == '#' && (ch == '1' || ch == '2' || ch == '3')){
-                status = ch;
-                continue;
-            }
-            if(status == '3'){
-                N = ch - '0';
-                continue;
-            }*/
-
-            // character
-            if(open){
-                if(type == '1'){//cfg
-                    switch (depth){
-                        case '0':
-                            t.src = ch;
-                            depth = '1';
-                            break;
-                        case '1':
-                            t.var1 = ch;
-                            depth = '2';
-                            break;
-                        case '2':
-                            t.var2 = ch;
-                            depth = '0';
-                            break;
-                    }
-                }else if(type == '2'){//graph
-                    switch (depth){
-                        case '0':
-                            e.src = ch - '0';
-                            depth = '1';
-                            break;
-                        case '1':
-                            e.dest = ch - '0';
-                            depth = '2';
-                            break;
-                        case '2':
-                            e.weight = ch;
-                            depth = '0';
-                            break;
-                    }
-                }
-            }
-            //continue;
-            //cout << ch << endl;
         }
-
     }
     my_file.close();
 }
 
 
+
+
+
 int main() {
-    string graph_file = "../graph.txt";
-    string cfl_file = "../cfl.txt";
+    string graph_file = "../graph2.txt";
+    string cfl_file = "../grammar.txt";
 
     vector<transition> grammars = {};
     vector<edge> edges= {};

@@ -3,8 +3,10 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 
 // GRAPH
@@ -120,23 +122,26 @@ void findCFGinGraph(Graph &graph,Grammar &cfg){
 
 vector<string> removeSpace(string str)
 {
-    //cout << str;
     vector<string> words;
     string word = "";
+    int space_count = 0;
     for (auto x : str)
     {
-        if (x == ' ')
+        if(x == ' ' && space_count == 0){
+            continue;
+        }
+        if ( (x == ' ' || x == '\t') && space_count != 0)
         {
-            //cout << word << endl;
             words.push_back(word);
             word = "";
+            space_count = 0;
         }
         else {
             word = word + x;
+            space_count = -1;
         }
     }
     words.push_back(word);
-    //cout << word << endl;
     return words;
 
 }
@@ -155,7 +160,6 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
         while (!my_file.eof()) {
             string line;
             getline(my_file, line, '\n');
-            //cout << line;
 
             vector<string> words = removeSpace(line);
 
@@ -172,8 +176,6 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
                 continue;
             } else {// type == '2'
                 if (first_line) {
-                    cout << words[0].length() << "!";
-
                     int count = 1;
                     N = 0;
                     for (int i = words[0].length() - 1; i >= 0; i--) {
@@ -217,8 +219,9 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
 
 
 int main() {
-    string graph_file = "../graph2.txt";
+    string graph_file = "../graph.txt";
     string cfl_file = "../grammar.txt";
+
 
     vector<transition> grammars = {};
     vector<edge> edges= {};
@@ -235,13 +238,21 @@ int main() {
 
     cout << "INPUT:"<<endl;
     printGrammar(grammar);
-    printGraph(graph);
+    //printGraph(graph);
 
+    auto start = high_resolution_clock::now();
     findCFGinGraph(graph,grammar);
+    auto stop = high_resolution_clock::now();
+
     cout<<"-----------------"<<endl;
     cout << "OUTPUT:"<<endl;
 
-    printGraph(graph);
+    //printGraph(graph);
+
+
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "Time taken by function: "
+         << duration.count() << " microseconds" << endl;
 
     return 0;
 }

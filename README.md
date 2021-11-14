@@ -6,7 +6,7 @@ The basic idea is simple: consider two adjacent edges in a graph labeled with "A
 
 ## input 
 There is a "graph.txt" file that GRAPH should enter there.
-first life of the graph input file is the count of vertexes. And every line after that is about the graph edges. The structure:
+The first line of the graph input file is the count of vertexes. And every line after that is about the graph edges. The structure:
 
 ```bash
 [edge source]  [edge destinction]  [edge weight]
@@ -22,4 +22,5 @@ Some sample is available in "other inputs" directory.
 
 ## Time Complexity
 The worst case of this code is (|E|^2)|G||T|. 
-In this case, |G| is the count of grammars in our CFL, |E| is the count of edges of the graph, and |T| is the count of repeating algorithm to achieve the final graph.
+In this case, |G| is the count of grammars in our CFL, |E| is the count of edges of the graph, and |T| is the count of repeating algorithm to achieve the final graph. 
+I used a google sheet that recorded results of running a findCFGinGraph method for each input in this [link](https://docs.google.com/spreadsheets/d/1lQdgS_EmGMyyoxc8e744PwCrOkYFLqaa67tuA25KHsg/edit?usp=sharing).

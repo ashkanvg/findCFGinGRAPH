@@ -91,11 +91,11 @@ void printGrammar(Grammar const &cfg)
     }
 }
 
-
-
 // check
 void findCFGinGraph(Graph &graph,Grammar &cfg){
     int count_new_edges = 1;
+    int sum = 0;
+    int iteration = 1;
     while(count_new_edges>0){
         count_new_edges = 0;
         for(int i = 0; i < graph.N; i++){ //each V
@@ -106,17 +106,24 @@ void findCFGinGraph(Graph &graph,Grammar &cfg){
                 result += v1.second;
                 for(pair<int,char> v2 : graph.adjList[v1.first]){
                     result = result + v2.second;
-
+                    //cout<< result << endl;
                     for(char g : cfg.grammar[result]){
                         struct edge e = {i,v2.first,g};
                         if(graph.add_edge(e))
                             count_new_edges++;
                     }
+                    result = v1.second;
 
                 }
             }
         }
+        cout << "Iteration-" << iteration << ":\t\t";
+        cout << "iteration new edges:" << count_new_edges << '\t';
+        cout << "all new edges:" << sum <<endl;
+        iteration++;
+        sum += count_new_edges;
     }
+    cout << sum<<endl;
 
 }
 
@@ -251,8 +258,7 @@ int main() {
 
 
     auto duration = duration_cast<microseconds>(stop - start);
-    cout << "Time taken by function: "
-         << duration.count() << " microseconds" << endl;
+    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
 
     return 0;
 }

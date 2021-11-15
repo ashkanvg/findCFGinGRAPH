@@ -123,6 +123,7 @@ void findCFGinGraph(Graph &graph,Grammar &cfg){
         iteration++;
         sum += count_new_edges;
     }
+    cout << iteration<< endl;
     cout << sum<<endl;
 
 }
@@ -220,8 +221,6 @@ void readInput(string text, vector<transition> &grammars, vector<edge> &edges, i
     }
     my_file.close();
 }
-
-
 
 
 

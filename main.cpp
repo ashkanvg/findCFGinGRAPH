@@ -16,37 +16,37 @@ struct edge
     char weight;
 };
 class Graph{
-    public:
-        //Vector of Vectors
-        int N;
-        vector<vector<pair<int,char>>> adjList;
+public:
+    //Vector of Vectors
+    int N;
+    vector<vector<pair<int,char>>> adjList;
 
-        //Graph Constructor
-        Graph(vector<edge> const &edges, int n){
-            N = n;
-            adjList.resize(N);
-            for (auto &edge: edges)
-            {
-                //insert at the end
-                adjList[edge.src].push_back({edge.dest,edge.weight});
+    //Graph Constructor
+    Graph(vector<edge> const &edges, int n){
+        N = n;
+        adjList.resize(N);
+        for (auto &edge: edges)
+        {
+            //insert at the end
+            adjList[edge.src].push_back({edge.dest,edge.weight});
 
-            }
         }
-        bool add_edge(struct edge e){
-            if(e.src>=N || e.dest>=N){
-                cout<< "edge is not valid.";
+    }
+    bool add_edge(struct edge e){
+        if(e.src>=N || e.dest>=N){
+            cout<< "edge is not valid.";
+            return false;
+        }
+
+        for(auto edge : adjList[e.src]){
+            if(edge.first == e.dest && edge.second == e.weight){
                 return false;
             }
-
-            for(auto edge : adjList[e.src]){
-                if(edge.first == e.dest && edge.second == e.weight){
-                    return false;
-                }
-            }
-
-            adjList[e.src].push_back({e.dest,e.weight});
-            return true;
         }
+
+        adjList[e.src].push_back({e.dest,e.weight});
+        return true;
+    }
 };
 void printGraph(Graph const &graph)
 {
@@ -96,18 +96,18 @@ void findCFGinGraph(Graph &graph,Grammar &cfg){
     int count_new_edges = 1;
     int sum = 0;
     int iteration = 1;
-    while(count_new_edges>0){
+    while(count_new_edges>0){ // for each Iteration - stop when the count of new edges are 0
         count_new_edges = 0;
         for(int i = 0; i < graph.N; i++){ //each V
-            for(int k = graph.adjList[i].size()-1; k>=0 ; k--){
+            for(int k = graph.adjList[i].size()-1; k>=0 ; k--){  // all neighbours of vertex i
                 pair<int,char> v1 = graph.adjList[i][k];
 
                 string result = "";
                 result += v1.second;
-                for(pair<int,char> v2 : graph.adjList[v1.first]){
+                for(pair<int,char> v2 : graph.adjList[v1.first]){ // all neighbours of vertex k
                     result = result + v2.second;
                     //cout<< result << endl;
-                    for(char g : cfg.grammar[result]){
+                    for(char g : cfg.grammar[result]){ // find it in grammer
                         struct edge e = {i,v2.first,g};
                         if(graph.add_edge(e))
                             count_new_edges++;
@@ -124,6 +124,7 @@ void findCFGinGraph(Graph &graph,Grammar &cfg){
         sum += count_new_edges;
     }
     cout << iteration<< endl;
+    cout << sum<<endl;
     cout << sum<<endl;
 
 }
@@ -153,7 +154,6 @@ vector<string> removeSpace(string str)
     return words;
 
 }
-
 // read input from txt
 // type = 1 --> CFL type = 2 --> Graph
 void readInput(string text, vector<transition> &grammars, vector<edge> &edges, int &N, char type){
@@ -243,15 +243,15 @@ int main() {
     Graph graph(edges, graph_size);
 
     cout << "INPUT:"<<endl;
-    printGrammar(grammar);
+    //printGrammar(grammar);
     //printGraph(graph);
 
     auto start = high_resolution_clock::now();
     findCFGinGraph(graph,grammar);
     auto stop = high_resolution_clock::now();
 
-    cout<<"-----------------"<<endl;
-    cout << "OUTPUT:"<<endl;
+    //cout<<"-----------------"<<endl;
+    //cout << "OUTPUT:"<<endl;
 
     //printGraph(graph);
 

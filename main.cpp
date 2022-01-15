@@ -20,6 +20,7 @@ public:
     //Vector of Vectors
     int N;
     vector<vector<pair<int,char>>> adjList;
+    vector<vector<pair<int,char>>> parentAdjList; // for saving parent adj list
 
     //Graph Constructor
     Graph(vector<edge> const &edges, int n){
@@ -29,7 +30,7 @@ public:
         {
             //insert at the end
             adjList[edge.src].push_back({edge.dest,edge.weight});
-
+            parentAdjList[edge.dest].push_back({edge.src,edge.weight}); // for saving parent adj list
         }
     }
     bool add_edge(struct edge e){

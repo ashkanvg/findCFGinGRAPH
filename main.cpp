@@ -5,6 +5,10 @@
 #include <fstream>
 #include <chrono>
 
+#include <iterator>
+#include <iomanip>
+#include <algorithm>
+
 using namespace std;
 using namespace std::chrono;
 
@@ -20,12 +24,14 @@ public:
     //Vector of Vectors
     int N;
     vector<vector<pair<int,char>>> adjList;
+
     vector<vector<pair<int,char>>> parentAdjList; // for saving parent adj list
 
     //Graph Constructor
     Graph(vector<edge> const &edges, int n){
         N = n;
         adjList.resize(N);
+        parentAdjList.resize(N);
         for (auto &edge: edges)
         {
             //insert at the end
@@ -46,6 +52,8 @@ public:
         }
 
         adjList[e.src].push_back({e.dest,e.weight});
+        parentAdjList[e.dest].push_back({e.src,e.weight});
+
         return true;
     }
 };
@@ -97,35 +105,115 @@ void findCFGinGraph(Graph &graph,Grammar &cfg){
     int count_new_edges = 1;
     int sum = 0;
     int iteration = 1;
+    vector<int> old_list;
     while(count_new_edges>0){ // for each Iteration - stop when the count of new edges are 0
         count_new_edges = 0;
-        for(int i = 0; i < graph.N; i++){ //each V
-            for(int k = graph.adjList[i].size()-1; k>=0 ; k--){  // all neighbours of vertex i
-                pair<int,char> v1 = graph.adjList[i][k];
+        vector<int> new_list;
+        if(iteration == 1){
+            for(int i = 0; i < graph.N; i++){ //each V
+                for(int k = graph.adjList[i].size()-1; k>=0 ; k--){  // all neighbours of vertex i
+                    pair<int,char> v1 = graph.adjList[i][k];
 
-                string result = "";
-                result += v1.second;
-                for(pair<int,char> v2 : graph.adjList[v1.first]){ // all neighbours of vertex k
-                    result = result + v2.second;
-                    //cout<< result << endl;
-                    for(char g : cfg.grammar[result]){ // find it in grammer
-                        struct edge e = {i,v2.first,g};
-                        if(graph.add_edge(e))
-                            count_new_edges++;
+                    string result = "";
+                    result += v1.second;
+                    for(pair<int,char> v2 : graph.adjList[v1.first]){ // all neighbours of vertex k
+                        result = result + v2.second;
+                        for(char g : cfg.grammar[result]){ // find it in grammer
+                            struct edge e = {i,v2.first,g};
+                            if(graph.add_edge(e)){
+                                count_new_edges++;
+
+                                // new_list:
+                                // suppose we added v1-->v2
+                                new_list.push_back(i);          // source
+                                new_list.push_back(v2.first);   // dest
+                                for(pair<int,char> v0 : graph.parentAdjList[i] ){ // before source
+                                    new_list.push_back(v0.first);
+                                }
+                                for(pair<int,char> v3 : graph.adjList[v2.first]){ // after dest
+                                    new_list.push_back(v3.first);
+                                }
+                            }
+                        }
+                        result = v1.second;
                     }
-                    result = v1.second;
-
                 }
             }
+        }else{
+            for(int i : old_list) { //each V
+                for (int k = graph.adjList[i].size() - 1; k >= 0; k--) {  // all neighbours of vertex i
+                    pair<int, char> v1 = graph.adjList[i][k];
+
+                    string result = "";
+                    result += v1.second;
+                    for (pair<int, char> v2 : graph.adjList[v1.first]) { // all neighbours of vertex k
+                        result = result + v2.second;
+                        for (char g : cfg.grammar[result]) { // find it in grammer
+                            struct edge e = {i, v2.first, g};
+                            if (graph.add_edge(e)){
+                                count_new_edges++;
+                                // new_list:
+                                // suppose we added v1-->v2
+                                new_list.push_back(i);          // source
+                                new_list.push_back(v2.first);   // dest
+                                for(pair<int,char> v0 : graph.parentAdjList[i] ){ // before source
+                                    new_list.push_back(v0.first);
+                                }
+                                for(pair<int,char> v3 : graph.adjList[v2.first]){ // after dest
+                                    new_list.push_back(v3.first);
+                                }
+                            }
+                        }
+                        result = v1.second;
+
+                    }
+                }
+
+            }
         }
-        cout << "Iteration-" << iteration << ":\t\t";
-        cout << "iteration new edges:" << count_new_edges << '\t';
-        cout << "all new edges:" << sum <<endl;
+
+
+
+
+        if(new_list.empty()){
+//            count_new_edges = 0;
+//            cout << "Iteration-" << iteration << ":\t\t";
+//            cout << "new edges for iteration:" << count_new_edges << '\t';
+            cout << "all new edges:" << sum <<endl;
+            iteration++;
+            sum += count_new_edges;
+            break;
+        }
+
+
+        // for delete duplicate data in vector new_list
+        // can enhanced?
+        std::sort(new_list.begin(), new_list.end());
+        auto last = std::unique(new_list.begin(), new_list.end());
+        new_list.resize(std::distance(new_list.begin(), last));
+
+
+        // free old_list:
+        old_list.resize(0);
+        old_list.shrink_to_fit();
+
+        //cout<< "size of iteration:" << new_list.size() << "\n";
+        //copy new_list into old_list
+        old_list = new_list;
+
+        // free new_list:
+        new_list.resize(0);
+        new_list.shrink_to_fit();
+
+
+
+//        cout << "Iteration-" << iteration << ":\t\t";
+//        cout << "new edges for iteration:" << count_new_edges << '\t';
+//        cout << "all new edges:" << sum <<endl;
         iteration++;
         sum += count_new_edges;
     }
     cout << iteration<< endl;
-    cout << sum<<endl;
     cout << sum<<endl;
 
 }
